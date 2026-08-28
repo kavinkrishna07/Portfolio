@@ -7,9 +7,9 @@ export const portfolioData = {
     heroSubtext: "I build full-stack applications, solve algorithmic problems, and enjoy understanding how software works from application logic to computer networks.",
     aboutHeadline: "Turning Complex Ideas Into Usable, Scalable Software",
     aboutBioParagraphs: [
-      "Kavin Krishna G is a Computer Science Engineering student at Sri Eshwar College of Engineering, Coimbatore, focused on software development and problem solving.",
-      "He enjoys building full-stack applications, working with Java and modern web technologies, and continuously improving his understanding of data structures, algorithms, databases, operating systems, and computer networks.",
-      "He prefers learning by building real applications and turning ideas into usable products."
+      "I am a Computer Science Engineering student at Sri Eshwar College of Engineering, Coimbatore, focused on software development and problem solving.",
+      "I enjoy building full-stack applications, working with Java and modern web technologies, and continuously improving my understanding of data structures, algorithms, databases, operating systems, and computer networks.",
+      "I prefer learning by building real applications and turning ideas into usable products."
     ],
     location: "Coimbatore, India",
     college: "Sri Eshwar College of Engineering",

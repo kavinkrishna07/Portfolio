@@ -115,7 +115,7 @@ export default function Contact() {
                 </div>
                 <h3 className="text-xl font-bold text-white">Message Sent Successfully</h3>
                 <p className="text-xs text-gray-300 max-w-sm mx-auto">
-                  Thank you for reaching out! Kavin will get back to you shortly at your provided email.
+                  Thank you for reaching out! I will get back to you shortly at your provided email.
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}
