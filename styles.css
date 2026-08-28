@@ -1,0 +1,477 @@
+/* ==========================================================================
+   DIGITAL FORENSICS CASE STUDY: NOTPETYA CYBERATTACK PRESENTATION
+   Theme: High-Tech Cybersecurity & Digital Forensics Command Center
+   ========================================================================== */
+
+/* Root Design System Variables */
+:root {
+  --bg-dark: #07090e;
+  --bg-canvas: #0b0f19;
+  --panel-bg: #121826;
+  --panel-header-bg: #182030;
+  --panel-border: #1f2d42;
+  --panel-border-accent: #00e5ff;
+  
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  --accent-cyan: #00e5ff;
+  --accent-blue: #38bdf8;
+  --accent-red: #ff3366;
+  --accent-amber: #ffb703;
+  --accent-green: #00e676;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --shadow-glow: 0 0 25px rgba(0, 229, 255, 0.12);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --transition-speed: 0.3s;
+}
+
+/* CSS Reset & Basic Setup */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle Cyber Grid Background Pattern (Pure CSS) */
+.cyber-grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Top Header Bar */
+.app-header {
+  position: relative;
+  z-index: 10;
+  height: 56px;
+  background-color: var(--panel-bg);
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.case-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.header-title {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tool-btn {
+  background: rgba(30, 42, 62, 0.6);
+  border: 1px solid var(--panel-border);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-speed) ease;
+}
+
+.tool-btn:hover {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.tool-btn.active {
+  background: rgba(0, 229, 255, 0.25);
+  border-color: var(--accent-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+}
+
+.btn-icon {
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+/* Presentation Viewport Stage */
+.presentation-viewport {
+  position: relative;
+  z-index: 5;
+  height: calc(100vh - 112px); /* Header + Footer height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.slide-stage {
+  position: relative;
+  width: 100%;
+  max-width: 1120px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Individual Slide Card */
+.slide-card {
+  position: absolute;
+  width: 100%;
+  max-height: 100%;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-left: 4px solid var(--accent-cyan);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px) scale(0.99);
+  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
+  overflow-y: auto;
+}
+
+/* Active Slide state */
+.slide-card.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* Slide Header */
+.slide-header {
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 16px;
+}
+
+.slide-metadata {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.meta-tag {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.meta-cat {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.slide-title {
+  font-family: var(--font-sans);
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+/* Slide Body & Bullets */
+.slide-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.bullet-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bullet-list > li {
+  position: relative;
+  padding-left: 24px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-main);
+  font-weight: 400;
+}
+
+.bullet-list > li::before {
+  content: "■";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  color: var(--accent-cyan);
+  font-size: 0.8rem;
+}
+
+.bullet-list .highlight {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+/* Nested Bullet Lists */
+.sub-bullet-list {
+  list-style: none;
+  margin-top: 10px;
+  margin-left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sub-bullet-list > li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.sub-bullet-list > li::before {
+  content: "›";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent-amber);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.sub-bullet-list strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Speaker Notes Drawer */
+.speaker-notes {
+  display: none;
+  margin-top: 24px;
+  padding: 16px 20px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px dashed var(--accent-amber);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: #fef08a;
+  line-height: 1.5;
+}
+
+.speaker-notes.visible {
+  display: block;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.notes-header {
+  font-weight: 700;
+  color: var(--accent-amber);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+/* Bottom App Footer Bar */
+.app-footer {
+  position: relative;
+  z-index: 10;
+  height: 56px;
+  background-color: var(--panel-bg);
+  border-top: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-btn {
+  background: var(--panel-header-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.slide-select-dropdown {
+  background: var(--panel-header-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.slide-select-dropdown option {
+  background: var(--bg-dark);
+  color: var(--text-main);
+}
+
+/* Progress Indicator Bar */
+.progress-container {
+  flex: 1;
+  max-width: 300px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  margin: 0 20px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 16.666%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.keyboard-hint {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+kbd {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Scaling for smaller screens */
+@media (max-height: 720px) {
+  .slide-card {
+    padding: 24px 32px;
+  }
+  .slide-title {
+    font-size: 1.7rem;
+  }
+  .bullet-list {
+    gap: 10px;
+  }
+  .bullet-list > li {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .keyboard-hint {
+    display: none;
+  }
+  .progress-container {
+    max-width: 150px;
+  }
+  .slide-card {
+    padding: 20px 24px;
+  }
+  .slide-title {
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Contact Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="simple-container">
+        <h2>Simple Contact Form</h2>
+        <p class="subtitle">Educational Local Security Lab Target (127.0.0.1:5002)</p>
+        <hr style="margin: 15px 0;">
+
+        <div style="margin-bottom: 15px;">
+            <label>Security Mode: </label>
+            <button id="toggle-mode-btn" type="button" class="simple-btn">
+                Mode: <strong id="mode-text">{{ mode.upper() }}</strong> (Click to Toggle)
+            </button>
+        </div>
+
+        <form id="simple-form" onsubmit="submitForm(event)">
+            <div class="field-group">
+                <label for="name-field">Name:</label>
+                <input type="text" id="name-field" name="name" placeholder="Enter name" required>
+            </div>
+
+            <div class="field-group">
+                <label for="subject-field">Subject:</label>
+                <input type="text" id="subject-field" name="subject" placeholder="Enter subject" required>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <button type="submit" id="submit-btn" class="simple-submit-btn">Submit</button>
+            </div>
+        </form>
+
+        <!-- Result Section Printed Below Form -->
+        <div id="result-box" class="result-box hidden">
+            <hr style="margin: 20px 0;">
+            <h3>Submitted Data & Server Output</h3>
+            
+            <div class="data-row">
+                <strong>Inputted Name:</strong> <span id="display-name">-</span>
+            </div>
+            <div class="data-row">
+                <strong>Inputted Subject:</strong> <span id="display-subject">-</span>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <strong>Server Response / Diagnostic Log:</strong>
+                <pre id="output-log" class="simple-pre"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = "{{ mode }}";
+
+        async function submitForm(e) {
+            e.preventDefault();
+            const nameVal = document.getElementById('name-field').value;
+            const subjectVal = document.getElementById('subject-field').value;
+            const submitBtn = document.getElementById('submit-btn');
+            const resultBox = document.getElementById('result-box');
+            const outputLog = document.getElementById('output-log');
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting...";
+            resultBox.classList.remove('hidden');
+            
+            document.getElementById('display-name').textContent = nameVal;
+            document.getElementById('display-subject').textContent = subjectVal;
+            outputLog.textContent = "Processing form submission...";
+
+            try {
+                const response = await fetch('/submit_form', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: nameVal, subject: subjectVal })
+                });
+
+                const data = await response.json();
+                outputLog.textContent = data.output || data.message || "No response.";
+            } catch (err) {
+                outputLog.textContent = "Error: " + err;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit";
+            }
+        }
+
+        document.getElementById('toggle-mode-btn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/toggle_mode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                currentMode = data.current_mode;
+                document.getElementById('mode-text').textContent = currentMode.toUpperCase();
+            } catch (err) {
+                console.error("Failed to toggle mode:", err);
+            }
+        });
+    </script>
+</body>
+</html>

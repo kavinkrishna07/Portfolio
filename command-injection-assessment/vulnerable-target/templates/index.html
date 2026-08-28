@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Information Checker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="disclaimer-bar">
+        <span>🛡️ EDUCATIONAL LOCAL SECURITY LAB &nbsp;|&nbsp; Host Information Checker Utility</span>
+    </div>
+
+    <div class="container">
+        <header class="app-header">
+            <div class="logo">
+                <span class="icon">🌐</span>
+                <h1>Host Information Checker</h1>
+            </div>
+            <div class="mode-control">
+                <span class="mode-label">Security Mode:</span>
+                <button id="toggle-mode-btn" class="badge-btn {{ 'vulnerable' if mode == 'vulnerable' else 'remediated' }}">
+                    <span id="mode-text">{{ mode.upper() }}</span>
+                    <span class="toggle-icon">🔄</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Network Utility Diagnostics</h2>
+                <p>Enter an IP address or domain to check host reachability.</p>
+            </div>
+
+            <form id="host-form" onsubmit="handleCheckHost(event)">
+                <div class="input-group">
+                    <label for="host-input">Enter IP Address or Domain:</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="host-input" name="host" placeholder="google.com" value="google.com" required autocomplete="off">
+                        <button type="submit" id="submit-btn" class="btn-primary">
+                            <span>Check Host</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="result-card" class="card result-card hidden">
+            <div class="card-header">
+                <h3>Diagnostic Output Result</h3>
+                <span id="status-badge" class="status-badge">Processing...</span>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-item">
+                    <span class="label">Target Host:</span>
+                    <span id="result-host" class="value font-mono">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Reachability:</span>
+                    <span id="result-reachable" class="value">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Mode Active:</span>
+                    <span id="result-mode" class="value font-mono">-</span>
+                </div>
+            </div>
+
+            <div class="output-block">
+                <div class="output-header">
+                    <span>Terminal Response:</span>
+                    <span class="output-tag">HOST CHECK LOG</span>
+                </div>
+                <pre id="output-console" class="font-mono"></pre>
+            </div>
+        </div>
+
+        <footer class="app-footer">
+            <p>Target Application &bull; Bound to <code>127.0.0.1:5001</code></p>
+        </footer>
+    </div>
+
+    <script>
+        let currentMode = "{{ mode }}";
+
+        async function handleCheckHost(e) {
+            e.preventDefault();
+            const host = document.getElementById('host-input').value;
+            const submitBtn = document.getElementById('submit-btn');
+            const resultCard = document.getElementById('result-card');
+            const outputConsole = document.getElementById('output-console');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Checking...";
+            resultCard.classList.remove('hidden');
+            outputConsole.textContent = "Connecting to host diagnostic utility...\nExecuting ping operation...";
+
+            try {
+                const response = await fetch('/check_host', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ host: host })
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('result-host').textContent = data.host || host;
+                document.getElementById('result-reachable').textContent = data.reachable ? "Reachable (200 OK)" : "Unreachable";
+                document.getElementById('result-mode').textContent = data.mode.toUpperCase();
+                
+                const statusBadge = document.getElementById('status-badge');
+                if (data.status === 'success') {
+                    statusBadge.textContent = "Completed";
+                    statusBadge.className = "status-badge status-success";
+                } else {
+                    statusBadge.textContent = "Blocked / Error";
+                    statusBadge.className = "status-badge status-error";
+                }
+
+                outputConsole.textContent = data.output || data.message || "No response received.";
+            } catch (err) {
+                outputConsole.textContent = "Error communicating with host checker: " + err;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Check Host";
+            }
+        }
+
+        document.getElementById('toggle-mode-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('toggle-mode-btn');
+            const modeText = document.getElementById('mode-text');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/toggle_mode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                currentMode = data.current_mode;
+                modeText.textContent = currentMode.toUpperCase();
+                btn.className = `badge-btn ${currentMode}`;
+            } catch (err) {
+                console.error("Failed to toggle mode:", err);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
